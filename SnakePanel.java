@@ -16,11 +16,12 @@ public class SnakePanel extends JPanel implements ActionListener,KeyListener,Run
 {
     //分数与速度
     int Score = 0;
-    int Speed = 0;
+    int Speed = 1;
     //食物坐标的随机数
     int rx = 0 ,ry = 0;
     //表示方向
     int FangX = 0;
+    int BigFood = 0;
     //表示是否开始的布尔值
     boolean StartBool = false;
     //表示是否死亡的布尔值
@@ -36,6 +37,7 @@ public class SnakePanel extends JPanel implements ActionListener,KeyListener,Run
     {
         start = new JButton("Start");
         end  = new JButton("End");
+        //setBackground(Color.magenta);
         start.addActionListener(this);
         end.addActionListener(this);
         addKeyListener(this);
@@ -55,12 +57,20 @@ public class SnakePanel extends JPanel implements ActionListener,KeyListener,Run
         g.drawRect(10, 40, 480, 430);
         g.drawString("Score: " + Score, 200, 22);
         g.drawString("Speed: " + Speed, 270, 22);
-        g.setColor(new Color(175, 255, 164));
+        if ((BigFood+1) % 5 == 0 && BigFood !=0)
+        {
+            g.setColor(new Color(255, 153, 232));
+        }
+        else
+        {
+            g.setColor(new Color(175, 255, 164));
+        }
         if (StartBool)
         {
             g.fillRect(10 + rx * 10  ,40 + ry * 10, 10 , 10);
         }
         g.setColor(new Color(255, 200, 56));
+
         if (dead)
         {
             g.setColor(Color.BLACK);
@@ -172,7 +182,14 @@ public class SnakePanel extends JPanel implements ActionListener,KeyListener,Run
     {
         if(rx == snakeBodyList.get(0).getX() && ry == snakeBodyList.get(0).getY())
         {
-            Score += 10;
+            BigFood ++;
+            if (BigFood%5 ==0)
+            {
+                Score += 20;
+                Speed +=5;
+            }
+            else
+                Score += 10;
             SnakeBody temp  = new SnakeBody();
             rx = r.nextInt(48);
             ry = r.nextInt(43);
@@ -187,7 +204,7 @@ public class SnakePanel extends JPanel implements ActionListener,KeyListener,Run
     {
         for (int  i = 1 ; i < snakeBodyList.size();i++)
         {
-            if (snakeBodyList.get(0).getX() == snakeBodyList.get(i).getX() && snakeBodyList.get(0).getY() == snakeBodyList.get(i).getY())
+            if (snakeBodyList.get(0).getX() == snakeBodyList.get(i).getX() && snakeBodyList.get(0).getY() == snakeBodyList.get(i).getY() ||snakeBodyList.size()==0)
             {
                 dead = true;
                 //start.setEnabled(true);
@@ -263,12 +280,14 @@ public class SnakePanel extends JPanel implements ActionListener,KeyListener,Run
     {
         while (StartBool)
         {
+
             if (dead)
             {
                 nthread.interrupt();
                 nthread = null;
                 break;
             }
+
             switch (FangX) {
                 case 1:
                     up();
@@ -286,6 +305,7 @@ public class SnakePanel extends JPanel implements ActionListener,KeyListener,Run
                     up();
                     break;
             }
+
             if (!dead)
             {
                 repaint();
@@ -294,7 +314,7 @@ public class SnakePanel extends JPanel implements ActionListener,KeyListener,Run
             {
                 try
                 {
-                    Thread.sleep(50);
+                    Thread.sleep(200/Speed);
                 }catch (InterruptedException e){e.printStackTrace();}
             }
         }
